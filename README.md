@@ -15,7 +15,7 @@
 <dependency>
   <groupId>com.arhs-group</groupId>
   <artifactId>spring-cache-mongodb</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -133,9 +133,9 @@ The `Model` object will be stored in MongoDB collection for future use (as the T
 
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg
 [license-url]: LICENSE
-[travis-image]: https://travis-ci.org/arhs/spring-cache-mongodb.svg?branch=master
-[travis-url]: https://travis-ci.org/arhs/spring-cache-mongodb
+[travis-image]: https://travis-ci.org/YakimenkoMichael/spring-cache-mongodb.svg?branch=master
+[travis-url]: https://travis-ci.org/YakimenkoMichael/spring-cache-mongodb
 [standard-readme-image]: https://img.shields.io/badge/standard--readme-OK-green.svg
 [standard-readme-url]: https://github.com/RichardLitt/standard-readme
-[coveralls-image]: https://coveralls.io/repos/github/arhs/spring-cache-mongodb/badge.svg
-[coveralls-url]: https://coveralls.io/github/arhs/spring-cache-mongodb
+[coveralls-image]: https://coveralls.io/repos/github/YakimenkoMichael/spring-cache-mongodb/badge.svg
+[coveralls-url]: https://coveralls.io/github/YakimenkoMichael/spring-cache-mongodb
