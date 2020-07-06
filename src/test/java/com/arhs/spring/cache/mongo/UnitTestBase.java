@@ -23,10 +23,9 @@
  */
 package com.arhs.spring.cache.mongo;
 
-import org.junit.After;
 import org.junit.Assert;
-import org.springframework.boot.test.util.EnvironmentTestUtils;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Unit test base.
@@ -34,34 +33,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @arhs ARHS Spikeseed
  */
 public class UnitTestBase {
-
-    protected AnnotationConfigApplicationContext context;
-
-    @After
-    public void close() {
-        if (context != null) {
-            context.close();
-        }
-    }
+    @Autowired
+    protected ApplicationContext context;
 
     protected void assertBeanExists(Class<?> bean) {
         Assert.assertNotNull("The bean does not exist in the context.", context.containsBean(bean.getName()));
     }
-
-    protected AnnotationConfigApplicationContext load(Class<?>[] configs, String... environment) {
-        // Creates a instance of the "AnnotationConfigApplicationContext" class that represents
-        // the application context.
-        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-
-        // Adds environment.
-        EnvironmentTestUtils.addEnvironment(applicationContext, environment);
-
-        // Registers the configuration class and auto-configuration classes.
-        applicationContext.register(TestConfiguration.class);
-        applicationContext.register(configs);
-        applicationContext.refresh();
-
-        return applicationContext;
-    }
-
 }

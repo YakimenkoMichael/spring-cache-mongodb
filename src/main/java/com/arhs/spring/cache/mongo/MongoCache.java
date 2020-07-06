@@ -26,28 +26,30 @@ package com.arhs.spring.cache.mongo;
 import com.arhs.spring.cache.mongo.domain.CacheDocument;
 import com.arhs.spring.cache.mongo.serializer.JavaSerializer;
 import com.arhs.spring.cache.mongo.serializer.Serializer;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
+import com.mongodb.client.ListIndexesIterable;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.Assert;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 /**
  * Spring {@link org.springframework.cache.Cache} adapter implementation
@@ -97,10 +99,10 @@ public class MongoCache implements Cache {
     /**
      * Constructor.
      *
-     * @param cacheName	     a cache name.
+     * @param cacheName      a cache name.
      * @param collectionName a collection name.
      * @param mongoTemplate  a {@link MongoTemplate} instance.
-     * @param ttl			 a time-to-live (in seconds).
+     * @param ttl            a time-to-live (in seconds).
      * @param serializer     a serializer.
      */
     public MongoCache(String cacheName, String collectionName, MongoTemplate mongoTemplate, long ttl, Serializer serializer) {
@@ -361,15 +363,15 @@ public class MongoCache implements Cache {
 
     private void updateExpireIndex(Index newExpireIndex) {
         final IndexOperations indexOperations = mongoTemplate.indexOps(collectionName);
-        final DBCollection collection = mongoTemplate.getCollection(collectionName);
-        final List<DBObject> indexes = collection.getIndexInfo();
+        final MongoCollection collection = mongoTemplate.getCollection(collectionName);
+        final ListIndexesIterable<Document> indexes = collection.listIndexes();
 
-        final Optional<DBObject> expireOptional = indexes.stream()
+        final Optional<Document> expireOptional = StreamSupport.stream(indexes.spliterator(), false)
                 .filter(index -> INDEX_NAME.equals(index.get("name")))
                 .findFirst();
 
         if (expireOptional.isPresent()) {
-            final DBObject expire = expireOptional.get();
+            final Document expire = expireOptional.get();
             final long ttl = (long) expire.get("expireAfterSeconds");
 
             if (ttl != this.ttl) {
@@ -379,5 +381,4 @@ public class MongoCache implements Cache {
 
         indexOperations.ensureIndex(newExpireIndex);
     }
-
 }

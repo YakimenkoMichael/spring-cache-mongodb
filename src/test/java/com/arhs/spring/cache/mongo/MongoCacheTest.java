@@ -25,6 +25,7 @@ package com.arhs.spring.cache.mongo;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.MongoDBContainer;
 
 import java.util.concurrent.Callable;
 
@@ -42,8 +44,10 @@ import java.util.concurrent.Callable;
  * @author ARHS Spikeseed
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfiguration.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class MongoCacheTest {
+    @ClassRule
+    public static MongoDBContainer mongoDBContainer = MongoDBTestContainer.getInstance();
 
     private static final String CACHE_NAME = "cache";
     private static final String COLLECTION_NAME = "test";

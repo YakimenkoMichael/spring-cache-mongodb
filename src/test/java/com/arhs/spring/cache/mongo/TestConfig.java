@@ -23,27 +23,26 @@
  */
 package com.arhs.spring.cache.mongo;
 
-import com.mongodb.MongoClient;
-import cz.jirutka.spring.embedmongo.EmbeddedMongoBuilder;
+import com.mongodb.client.MongoClients;
+import org.junit.ClassRule;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import org.testcontainers.containers.MongoDBContainer;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 
 /**
  * Spring Configuration for basic integration tests.
  *
  * @author ARHS Spikeseed
  */
-@Configuration
-public class TestConfiguration {
+@TestConfiguration
+public class TestConfig {
+    @ClassRule
+    public static MongoDBContainer mongoDBContainer = MongoDBTestContainer.getInstance();
 
     private static final String DATABASE_NAME = "test";
-    private static final String IP_ADDRESS = "127.0.0.1";
-    private static final String VERSION = "2.4.5";
 
     /**
      * Gets a {@link MongoTemplate} instance.
@@ -53,23 +52,7 @@ public class TestConfiguration {
      */
     @Bean
     public MongoTemplate mongoTemplate() throws IOException {
-        final int port = allocateRandomPort();
-        final MongoClient mongoClient = new EmbeddedMongoBuilder().version(VERSION).bindIp(IP_ADDRESS).port(port).build();
-        final SimpleMongoDbFactory simpleMongoDbFactory = new SimpleMongoDbFactory(mongoClient, DATABASE_NAME);
-
-        return new MongoTemplate(simpleMongoDbFactory);
+        return new MongoTemplate(MongoClients.create("mongodb://localhost:" +
+                System.getProperty(MongoDBTestContainer.MONGODB_PORT)), DATABASE_NAME);
     }
-
-    private static int allocateRandomPort() {
-        try {
-            final ServerSocket serverSocket = new ServerSocket(0);
-            final int port = serverSocket.getLocalPort();
-            serverSocket.close();
-
-            return port;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to acquire a random free port", e);
-        }
-    }
-
 }

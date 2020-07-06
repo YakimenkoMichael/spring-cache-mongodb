@@ -47,7 +47,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author ARHS Spikeseed
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfiguration.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class MongoCacheManagerTest {
 
     private static final String CACHE_NAME = "cache";

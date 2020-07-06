@@ -25,13 +25,22 @@ package com.arhs.spring.cache.mongo.autoconfigure;
 
 import com.arhs.spring.cache.mongo.MongoCache;
 import com.arhs.spring.cache.mongo.MongoCacheManager;
-import com.arhs.spring.cache.mongo.TestConfiguration;
+import com.arhs.spring.cache.mongo.MongoDBTestContainer;
+import com.arhs.spring.cache.mongo.TestConfig;
 import com.arhs.spring.cache.mongo.UnitTestBase;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.MongoDBContainer;
+
+import static com.arhs.spring.cache.mongo.autoconfigure.MongoCacheAutoConfigurationTest.CACHE_NAME;
+import static com.arhs.spring.cache.mongo.autoconfigure.MongoCacheAutoConfigurationTest.COLLECTION_NAME;
+import static com.arhs.spring.cache.mongo.autoconfigure.MongoCacheAutoConfigurationTest.FLUSH_ON_BOOT;
+import static com.arhs.spring.cache.mongo.autoconfigure.MongoCacheAutoConfigurationTest.TTL;
 
 /**
  * Unit tests for {@code MongoCacheAutoConfiguration} class.
@@ -39,33 +48,28 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author ARHS Spikeseed
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfiguration.class)
+@ContextConfiguration(classes = {
+        TestConfig.class,
+        MongoCacheAutoConfiguration.class
+})
+@TestPropertySource(properties = {"spring.cache.mongo.caches[0].ttl:" + TTL,
+        "spring.cache.mongo.caches[0].cacheName:" + CACHE_NAME,
+        "spring.cache.mongo.caches[0].collectionName:" + COLLECTION_NAME,
+        "spring.cache.mongo.caches[0].flushOnBoot:" + FLUSH_ON_BOOT})
 public class MongoCacheAutoConfigurationTest extends UnitTestBase {
+    @ClassRule
+    public static MongoDBContainer mongoDBContainer = MongoDBTestContainer.getInstance();
 
-    private static final String CACHE_NAME = "cache";
-    private static final String COLLECTION_NAME = "collection";
-    private static final boolean FLUSH_ON_BOOT = false;
-    private static final long TTL = 30;
-
-    /**
-     * Executes before the execution of tests.
-     */
-    public void load() {
-        context = load(
-                new Class<?>[] { MongoCacheAutoConfiguration.class },
-                "spring.cache.mongo.caches[0].ttl:" + TTL,
-                "spring.cache.mongo.caches[0].cacheName:" + CACHE_NAME,
-                "spring.cache.mongo.caches[0].collectionName:" + COLLECTION_NAME,
-                "spring.cache.mongo.caches[0].flushOnBoot:" + FLUSH_ON_BOOT
-        );
-    }
+    static final String CACHE_NAME = "cache";
+    static final String COLLECTION_NAME = "collection";
+    static final boolean FLUSH_ON_BOOT = false;
+    static final long TTL = 30;
 
     /**
      * Test for using of {@code MongoCacheManager} instance.
      */
     @Test
     public void testInstance() {
-        load();
         assertBeanExists(MongoCache.class);
 
         final MongoCacheManager manager = context.getBean(MongoCacheManager.class);
@@ -77,7 +81,6 @@ public class MongoCacheAutoConfigurationTest extends UnitTestBase {
      */
     @Test
     public void testProperties() {
-        load();
         assertBeanExists(MongoCacheManager.class);
 
         final MongoCacheManager manager = context.getBean(MongoCacheManager.class);
@@ -90,5 +93,4 @@ public class MongoCacheAutoConfigurationTest extends UnitTestBase {
         Assert.assertEquals(COLLECTION_NAME, cache.getCollectionName());
         Assert.assertEquals(FLUSH_ON_BOOT, cache.isFlushOnBoot());
     }
-
 }
